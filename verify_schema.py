@@ -82,5 +82,16 @@ def verify():
         print(f"FAILED to detect cycle! Status: {resp.status_code}")
         exit(1)
 
+    # 8. Verify /graph Endpoint
+    print_step("Verifying /graph Endpoint")
+    resp = client.get("/graph")
+    assert resp.status_code == 200
+    graph_data = resp.json()
+    print("Graph Data:", json.dumps(graph_data, indent=2))
+    assert "nodes" in graph_data
+    assert "edges" in graph_data
+    assert len(graph_data["nodes"]) >= 2
+    assert len(graph_data["edges"]) >= 1
+
 if __name__ == "__main__":
     verify()

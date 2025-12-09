@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas import EntityCreate, EntityResponse, FacetCreate, FacetResponse, RelationCreate, RelationResponse
+from app.schemas import EntityCreate, EntityResponse, FacetCreate, FacetResponse, RelationCreate, RelationResponse, GraphResponse
 from app.core.builder import SystemBuilder
 
 router = APIRouter()
@@ -29,3 +29,7 @@ def add_facet(entity_id: int, facet: FacetCreate, db: Session = Depends(get_db))
 @router.post("/entities/{entity_id}/relations", response_model=RelationResponse)
 def create_relation(entity_id: int, relation: RelationCreate, db: Session = Depends(get_db)):
     return SystemBuilder.create_relation(db, entity_id, relation)
+
+@router.get("/graph", response_model=GraphResponse)
+def get_graph(db: Session = Depends(get_db)):
+    return SystemBuilder.get_graph(db)

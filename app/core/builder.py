@@ -25,6 +25,33 @@ class SystemBuilder:
         return db.query(Entity).all()
 
     @staticmethod
+    def get_graph(db: Session):
+        entities = db.query(Entity).all()
+        relations = db.query(Relation).all()
+        
+        # Map entities to GraphNode (pydantic will handle this if we pass object compatible structure)
+        # But we need to ensure the structure matches what GraphResponse expects.
+        # GraphNode expects id, name, description, facets. 
+        # Entities have these attributes.
+        
+        # GraphEdge expects source_id, target_id, relation_name, relation_id.
+        # Relations have source_entity_id, target_entity_id, name, id.
+        
+        edges = []
+        for r in relations:
+            edges.append({
+                "source_id": r.source_entity_id,
+                "target_id": r.target_entity_id,
+                "relation_name": r.name,
+                "relation_id": r.id
+            })
+            
+        return {
+            "nodes": entities, 
+            "edges": edges
+        }
+
+    @staticmethod
     def add_facet(db: Session, entity_id: int, facet: FacetCreate):
         # Validate Entity exists
         entity = db.query(Entity).filter(Entity.id == entity_id).first()

@@ -36,3 +36,25 @@ class EntityResponse(EntityCreate):
 
     class Config:
         from_attributes = True
+
+class GraphNode(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    facets: List[FacetResponse]
+
+    class Config:
+        from_attributes = True
+
+class GraphEdge(BaseModel):
+    source_id: int
+    target_id: int
+    relation_name: str
+    relation_id: int
+
+    class Config:
+        from_attributes = True
+
+class GraphResponse(BaseModel):
+    nodes: List[GraphNode]
+    edges: List[GraphEdge]
