@@ -6,54 +6,39 @@ class FacetCreate(BaseModel):
     configuration: Dict[str, Any]
 
 class FacetResponse(FacetCreate):
-    id: int
-    entity_id: int
-
-    class Config:
-        from_attributes = True
+    id: str
+    entity_id: str
 
 class RelationCreate(BaseModel):
-    target_entity_id: int
+    target_entity_id: str
     name: str
     description: Optional[str] = None
 
 class RelationResponse(RelationCreate):
-    id: int
-    source_entity_id: int
-
-    class Config:
-        from_attributes = True
+    id: str
+    source_entity_id: str
 
 class EntityCreate(BaseModel):
     name: str
     description: Optional[str] = None
 
 class EntityResponse(EntityCreate):
-    id: int
+    id: str
     facets: List[FacetResponse] = []
     outgoing_relations: List[RelationResponse] = []
     incoming_relations: List[RelationResponse] = []
 
-    class Config:
-        from_attributes = True
-
 class GraphNode(BaseModel):
-    id: int
+    id: str
     name: str
     description: Optional[str] = None
     facets: List[FacetResponse]
 
-    class Config:
-        from_attributes = True
-
 class GraphEdge(BaseModel):
-    source_id: int
-    target_id: int
+    source_id: str
+    target_id: str
     relation_name: str
-    relation_id: int
-
-    class Config:
-        from_attributes = True
+    relation_id: str
 
 class GraphResponse(BaseModel):
     nodes: List[GraphNode]

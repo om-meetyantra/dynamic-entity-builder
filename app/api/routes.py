@@ -1,35 +1,35 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from app.database import get_db
+from neo4j import Driver
+from app.database import get_driver
 from app.schemas import EntityCreate, EntityResponse, FacetCreate, FacetResponse, RelationCreate, RelationResponse, GraphResponse
 from app.core.builder import SystemBuilder
 
 router = APIRouter()
 
 @router.post("/entities", response_model=EntityResponse)
-def create_entity(entity: EntityCreate, db: Session = Depends(get_db)):
-    return SystemBuilder.create_entity(db, entity)
+def create_entity(entity: EntityCreate, driver: Driver = Depends(get_driver)):
+    return SystemBuilder.create_entity(driver, entity)
 
 @router.get("/entities", response_model=List[EntityResponse])
-def get_entities(db: Session = Depends(get_db)):
-    return SystemBuilder.get_all_entities(db)
+def get_entities(driver: Driver = Depends(get_driver)):
+    return SystemBuilder.get_all_entities(driver)
 
 @router.get("/entities/{entity_id}", response_model=EntityResponse)
-def get_entity(entity_id: int, db: Session = Depends(get_db)):
-    db_entity = SystemBuilder.get_entity(db, entity_id)
+def get_entity(entity_id: str, driver: Driver = Depends(get_driver)):
+    db_entity = SystemBuilder.get_entity(driver, entity_id)
     if not db_entity:
         raise HTTPException(status_code=404, detail="Entity not found")
     return db_entity
 
 @router.post("/entities/{entity_id}/facets", response_model=FacetResponse)
-def add_facet(entity_id: int, facet: FacetCreate, db: Session = Depends(get_db)):
-    return SystemBuilder.add_facet(db, entity_id, facet)
+def add_facet(entity_id: str, facet: FacetCreate, driver: Driver = Depends(get_driver)):
+    return SystemBuilder.add_facet(driver, entity_id, facet)
 
 @router.post("/entities/{entity_id}/relations", response_model=RelationResponse)
-def create_relation(entity_id: int, relation: RelationCreate, db: Session = Depends(get_db)):
-    return SystemBuilder.create_relation(db, entity_id, relation)
+def create_relation(entity_id: str, relation: RelationCreate, driver: Driver = Depends(get_driver)):
+    return SystemBuilder.create_relation(driver, entity_id, relation)
 
 @router.get("/graph", response_model=GraphResponse)
-def get_graph(db: Session = Depends(get_db)):
-    return SystemBuilder.get_graph(db)
+def get_graph(driver: Driver = Depends(get_driver)):
+    return SystemBuilder.get_graph(driver)

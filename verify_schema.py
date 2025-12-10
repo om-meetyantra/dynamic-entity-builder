@@ -4,6 +4,13 @@ import json
 
 client = TestClient(app)
 
+def cleanup_neo4j():
+    # Clean up DB
+    from app.database import get_driver
+    driver = get_driver()
+    driver.execute_query("MATCH (n) DETACH DELETE n", database_="neo4j")
+    print("--- Neo4j Database Cleared ---")
+
 def print_step(msg):
     print(f"\n--- {msg} ---")
 
@@ -94,4 +101,5 @@ def verify():
     assert len(graph_data["edges"]) >= 1
 
 if __name__ == "__main__":
+    cleanup_neo4j()
     verify()

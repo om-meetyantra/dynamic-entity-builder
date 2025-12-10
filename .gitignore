@@ -178,3 +178,6 @@ pyrightconfig.json
 
 # local db files
 *.db
+
+# local data files
+data/

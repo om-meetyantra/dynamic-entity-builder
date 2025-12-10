@@ -1,5 +1,5 @@
 fastapi
 uvicorn
-sqlalchemy
-sqlmodel
+neo4j
 httpx
+pydantic
