@@ -23,8 +23,12 @@ def get_entity(entity_id: str, driver: Driver = Depends(get_driver)):
     return db_entity
 
 @router.post("/entities/{entity_id}/facets", response_model=FacetResponse)
-def add_facet(entity_id: str, facet: FacetCreate, driver: Driver = Depends(get_driver)):
-    return SystemBuilder.add_facet(driver, entity_id, facet)
+def add_entity_facet(entity_id: str, facet: FacetCreate, driver: Driver = Depends(get_driver)):
+    return SystemBuilder.add_facet(driver, entity_id, facet, target_type="Entity")
+
+@router.post("/relations/{relation_id}/facets", response_model=FacetResponse)
+def add_relation_facet(relation_id: str, facet: FacetCreate, driver: Driver = Depends(get_driver)):
+    return SystemBuilder.add_facet(driver, relation_id, facet, target_type="RelationDefinition")
 
 @router.post("/entities/{entity_id}/relations", response_model=RelationResponse)
 def create_relation(entity_id: str, relation: RelationCreate, driver: Driver = Depends(get_driver)):

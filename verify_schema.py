@@ -23,16 +23,30 @@ def verify():
     print(f"Created User with ID: {user_id}")
 
     # 2. Add Property Facet to User
-    print_step("Adding Property Facet to 'User'")
-    prop_config = {
-        "properties": [
-            {"name": "username", "type": "string"},
-            {"name": "email", "type": "string"}
-        ]
-    }
-    resp = client.post(f"/entities/{user_id}/facets", json={"type": "property", "configuration": prop_config})
+    # 2. Add Property Facets to User (Granular)
+    print_step("Adding Property Facets to 'User'")
+    # Property 1: Username
+    resp = client.post(f"/entities/{user_id}/facets", json={
+        "type": "property", 
+        "configuration": {
+            "name": "username", 
+            "dataType": "string",
+            "description": "Unique identifier for the user"
+        }
+    })
     assert resp.status_code == 200
-    print("Added Property Facet")
+    
+    # Property 2: Email
+    resp = client.post(f"/entities/{user_id}/facets", json={
+        "type": "property", 
+        "configuration": {
+            "name": "email", 
+            "dataType": "string",
+            "description": "Contact email"
+        }
+    })
+    assert resp.status_code == 200
+    print("Added Property Facets (Granular)")
 
     # 3. Create Entity "Ticket"
     print_step("Creating Entity 'Ticket'")
@@ -64,6 +78,31 @@ def verify():
     assert resp.status_code == 200
     print("Relation Created")
 
+    # 5.1 Add Facet to Relation
+    print_step("Adding Facet to Relation")
+    # Fetch relations to get ID
+    resp = client.get(f"/entities/{ticket_id}")
+    ticket_data = resp.json()
+    rel_id = ticket_data["outgoing_relations"][0]["id"]
+    
+    # Add Criteria Facet to Relation
+    criteria_config = {
+        "name": "Must be assigned to active user",
+        "rule": "user.status == 'active'"
+    }
+    resp = client.post(f"/relations/{rel_id}/facets", json={"type": "criteria", "configuration": criteria_config})
+    assert resp.status_code == 200
+    print("Added Criteria Facet to Relation")
+
+    # 5.2 Add Entity Facet to Ticket (Reference)
+    print_step("Adding Entity Facet to 'Ticket'")
+    entity_facet_config = {
+        "target_entity_id": user_id
+    }
+    resp = client.post(f"/entities/{ticket_id}/facets", json={"type": "entity", "configuration": entity_facet_config})
+    assert resp.status_code == 200
+    print("Added Entity Reference Facet")
+
     # 6. Verify Graph Structure
     print_step("Verifying Entities and Relations")
     resp = client.get(f"/entities/{ticket_id}")
@@ -71,6 +110,11 @@ def verify():
     print("Ticket Data:", json.dumps(data, indent=2))
     assert len(data["outgoing_relations"]) == 1
     assert data["outgoing_relations"][0]["name"] == "assigned_to"
+    # Check Relation Facets
+    rel = data["outgoing_relations"][0]
+    assert "facets" in rel
+    assert len(rel["facets"]) >= 1
+    assert rel["facets"][0]["type"] == "criteria"
 
     # 7. Attempt Cycle (User -> Ticket) - Should Fail?
     # User said "acyclic directed graph".

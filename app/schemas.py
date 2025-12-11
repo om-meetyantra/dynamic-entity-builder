@@ -1,13 +1,20 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel
 
+# Facet Types: 'property', 'lifecycle', 'criteria', 'entity'
+
 class FacetCreate(BaseModel):
-    type: str # 'property', 'lifecycle'
+    type: str 
+    # configuration can be flexible. 
+    # For property: { "name": "p1", "datatype": "string" }
+    # For criteria: { "name": "c1", "rule": "x > 10" }
+    # For entity: { "target_entity_id": "uuid" }
     configuration: Dict[str, Any]
 
 class FacetResponse(FacetCreate):
     id: str
-    entity_id: str
+    entity_id: Optional[str] = None # Can belong to Entity OR Relation
+    relation_id: Optional[str] = None
 
 class RelationCreate(BaseModel):
     target_entity_id: str
@@ -17,6 +24,7 @@ class RelationCreate(BaseModel):
 class RelationResponse(RelationCreate):
     id: str
     source_entity_id: str
+    facets: List[FacetResponse] = [] # Relations can now have facets
 
 class EntityCreate(BaseModel):
     name: str
@@ -39,6 +47,7 @@ class GraphEdge(BaseModel):
     target_id: str
     relation_name: str
     relation_id: str
+    facets: List[FacetResponse]
 
 class GraphResponse(BaseModel):
     nodes: List[GraphNode]
