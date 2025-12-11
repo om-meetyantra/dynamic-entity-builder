@@ -181,3 +181,6 @@ pyrightconfig.json
 
 # local data files
 data/
+
+# local config
+.gitconfig
