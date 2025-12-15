@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import routes
+from app.api.routers import entities, relations, facets, graph
 
 app = FastAPI(title="Dynamic Entity System Model Builder (Neo4j)")
 
@@ -12,7 +12,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(routes.router)
+app.include_router(entities.router, prefix="/entities", tags=["Entities"])
+app.include_router(relations.router, prefix="/relations", tags=["Relations"])
+app.include_router(facets.router, prefix="/facets", tags=["Facets"])
+app.include_router(graph.router, prefix="/graph", tags=["Graph"])
 
 @app.get("/")
 def read_root():
